@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.india.management.mapper.RoleMapper">
+
+    <resultMap id="roleWithPermissionsMap" type="com.india.management.entity.Role">
+        <id property="id" column="role_id"/>
+        <result property="name" column="role_name"/>
+        <result property="code" column="role_code"/>
+        <result property="description" column="role_description"/>
+        <result property="createTime" column="role_create_time"/>
+        <result property="updateTime" column="role_update_time"/>
+        <result property="deleted" column="role_deleted"/>
+        <collection property="permissions" ofType="com.india.management.entity.Permission">
+            <id property="id" column="permission_id"/>
+            <result property="code" column="permission_code"/>
+            <result property="name" column="permission_name"/>
+            <result property="description" column="permission_description"/>
+            <result property="type" column="permission_type"/>
+            <result property="path" column="permission_path"/>
+            <result property="component" column="permission_component"/>
+            <result property="icon" column="permission_icon"/>
+            <result property="sort" column="permission_sort"/>
+            <result property="parentId" column="permission_parent_id"/>
+        </collection>
+    </resultMap>
+
+    <select id="selectRolesByUserId" resultType="com.india.management.entity.Role">
+        SELECT 
+            r.id,
+            r.name,
+            r.code,
+            r.description,
+            r.create_time,
+            r.update_time
+        FROM 
+            sys_role r
+        INNER JOIN 
+            sys_user_role ur ON r.id = ur.role_id
+        WHERE 
+            ur.user_id = #{userId}
+            AND r.deleted = 0
+    </select>
+
+    <select id="selectRoleWithPermissionsById" resultMap="roleWithPermissionsMap">
+        SELECT 
+            r.id AS role_id,
+            r.name AS role_name,
+            r.code AS role_code,
+            r.description AS role_description,
+            r.create_time AS role_create_time,
+            r.update_time AS role_update_time,
+            r.deleted AS role_deleted,
+            p.id AS permission_id,
+            p.code AS permission_code,
+            p.name AS permission_name,
+            p.description AS permission_description,
+            p.type AS permission_type,
+            p.path AS permission_path,
+            p.component AS permission_component,
+            p.icon AS permission_icon,
+            p.sort AS permission_sort,
+            p.parent_id AS permission_parent_id
+        FROM 
+            sys_role r
+        LEFT JOIN 
+            sys_role_permission rp ON r.id = rp.role_id
+        LEFT JOIN 
+            sys_permission p ON rp.permission_id = p.id
+        WHERE 
+            r.id = #{roleId}
+            AND r.deleted = 0
+            AND (p.deleted = 0 OR p.deleted IS NULL)
+    </select>
+</mapper>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.india.management.mapper.PermissionMapper">
+
+    <select id="selectPermissionsByRoleId" resultType="com.india.management.entity.Permission">
+        SELECT 
+            p.id,
+            p.code,
+            p.name,
+            p.description,
+            p.type,
+            p.path,
+            p.component,
+            p.icon,
+            p.sort,
+            p.parent_id,
+            p.create_time,
+            p.update_time
+        FROM 
+            sys_permission p
+        INNER JOIN 
+            sys_role_permission rp ON p.id = rp.permission_id
+        WHERE 
+            rp.role_id = #{roleId}
+            AND p.deleted = 0
+        ORDER BY 
+            p.sort
+    </select>
+
+    <select id="selectPermissionsByUserId" resultType="com.india.management.entity.Permission">
+        SELECT DISTINCT
+            p.id,
+            p.code,
+            p.name,
+            p.description,
+            p.type,
+            p.path,
+            p.component,
+            p.icon,
+            p.sort,
+            p.parent_id,
+            p.create_time,
+            p.update_time
+        FROM 
+            sys_permission p
+        INNER JOIN 
+            sys_role_permission rp ON p.id = rp.permission_id
+        INNER JOIN 
+            sys_role r ON rp.role_id = r.id
+        INNER JOIN 
+            sys_user_role ur ON r.id = ur.role_id
+        WHERE 
+            ur.user_id = #{userId}
+            AND p.deleted = 0
+            AND r.deleted = 0
+        ORDER BY 
+            p.sort
+    </select>
+
+    <select id="selectMenuTree" resultType="com.india.management.entity.Permission">
+        SELECT 
+            p.id,
+            p.code,
+            p.name,
+            p.description,
+            p.type,
+            p.path,
+            p.component,
+            p.icon,
+            p.sort,
+            p.parent_id,
+            p.create_time,
+            p.update_time
+        FROM 
+            sys_permission p
+        WHERE 
+            p.type = 'menu'
+            AND p.deleted = 0
+        ORDER BY 
+            p.sort
+    </select>
+</mapper>
